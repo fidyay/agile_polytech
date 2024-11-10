@@ -1,6 +1,6 @@
 import express from "express";
-import { getBalance, adjustResource } from "./controllers/balanceController";
-import { initDB } from "./utils/database";
+import { getBalance, adjustResource } from "./controllers/balanceController.js";
+import { initDB } from "./utils/database.js";
 
 const app = express();
 const PORT = 3000;

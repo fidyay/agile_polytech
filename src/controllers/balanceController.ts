@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { BalanceService } from "../services/balanceService";
+import { BalanceService } from "../services/balanceService.js";
 
 const balanceService = new BalanceService();
 

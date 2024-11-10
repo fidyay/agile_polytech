@@ -1,4 +1,4 @@
-import { db } from "../utils/database";
+import { db } from "../utils/database.js";
 
 export class BalanceService {
   async balanceResources(): Promise<void> {
