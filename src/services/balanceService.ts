@@ -1,22 +1,21 @@
 import { db } from "../utils/database.js";
+import { ResourceManager } from "../utils/resourceManager.js";
 
 export class BalanceService {
   async balanceResources(): Promise<void> {
-    const totalCapacity = db.data.energyResources.reduce((acc, resource) => {
-      return resource.isActive ? acc + resource.capacity : acc;
-    }, 0);
-
-    console.log(`Total capacity of active resources: ${totalCapacity} units`);
+    console.log(
+      `Total capacity of active resources: ${this.calculateTotalCapacity()} units`
+    );
   }
 
   async manualAdjustResource(id: string, newCapacity: number): Promise<void> {
-    const resource = db.data.energyResources.find((r) => r.id === id);
-    if (resource) {
-      resource.capacity = newCapacity;
-      await db.write();
-      console.log(`Resource ${id} capacity updated to ${newCapacity}`);
-    } else {
-      console.log(`Resource with ID ${id} not found`);
-    }
+    await ResourceManager.adjustResourceCapacity(id, newCapacity);
+  }
+
+  private calculateTotalCapacity(): number {
+    return db.data.energyResources.reduce(
+      (acc, resource) => (resource.isActive ? acc + resource.capacity : acc),
+      0
+    );
   }
 }

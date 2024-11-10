@@ -3,7 +3,8 @@ import { getBalance, adjustResource } from "./controllers/balanceController.js";
 import { initDB } from "./utils/database.js";
 
 const app = express();
-const PORT = 3000;
+const DEFAULT_SERVER_PORT = 3000;
+const PORT = process.env.PORT || DEFAULT_SERVER_PORT;
 
 app.use(express.json());
 
