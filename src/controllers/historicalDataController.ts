@@ -1,79 +1,79 @@
-// file: src/controllers/historicalDataController.ts
 import { Request, Response } from "express";
-import { HistoricalDataService } from "../services/historicalDataService.js";
+import { IHistoricalDataService } from "../services/IHistoricalDataService";
 
-const historicalDataService = new HistoricalDataService();
+export class HistoricalDataController {
+    private service: IHistoricalDataService;
 
-export const getHistoricalData = async (req: Request, res: Response) => {
-    try {
-        const data = await historicalDataService.getAllHistoricalData();
-        res.status(200).send(data);
-    } catch (error) {
-        res.status(500).send({ error: "Failed to fetch historical data" });
+    constructor(service: IHistoricalDataService) {
+        this.service = service;
     }
-};
 
-export const addHistoricalData = async (req: Request, res: Response) => {
-    const { id, timestamp, energyResourceId, consumption } = req.body;
-    try {
-        await historicalDataService.addHistoricalRecord({
-            id,
-            timestamp,
-            energyResourceId,
-            consumption,
-        });
-        res.status(201).send({ message: "Historical data added" });
-    } catch (error) {
-        res.status(500).send({ error: "Failed to add historical data" });
+    async getAllHistoricalData(req: Request, res: Response): Promise<void> {
+        try {
+            const data = await this.service.getAllHistoricalData();
+            res.status(200).send(data);
+        } catch (error) {
+            res.status(500).send({ error: "Failed to fetch historical data" });
+        }
     }
-};
 
-export const getRecordByEnergyResource = async (req: Request, res: Response) => {
-    const { energyResourceId } = req.params;
-    try {
-        const records = await historicalDataService.getRecordByEnergyResourceId(energyResourceId);
-        res.status(200).send(records);
-    } catch (error) {
-        res.status(500).send({ error: "Failed to fetch records for the energy resource" });
+    async addHistoricalData(req: Request, res: Response): Promise<void> {
+        const { id, timestamp, energyResourceId, consumption } = req.body;
+        try {
+            await this.service.addHistoricalRecord({ id, timestamp, energyResourceId, consumption });
+            res.status(201).send({ message: "Historical data added" });
+        } catch (error) {
+            res.status(500).send({ error: "Failed to add historical data" });
+        }
     }
-};
 
-export const getRecordsByDateRange = async (req: Request, res: Response) => {
-    const { start, end } = req.query;
-    try {
-        const records = await historicalDataService.getRecordsByDateRange(start as string, end as string);
-        res.status(200).send(records);
-    } catch (error) {
-        res.status(500).send({ error: "Failed to fetch records by date range" });
+    async getRecordByEnergyResource(req: Request, res: Response): Promise<void> {
+        const { energyResourceId } = req.params;
+        try {
+            const record = await this.service.getRecordByEnergyResourceId(energyResourceId);
+            res.status(200).send(record);
+        } catch (error) {
+            res.status(500).send({ error: "Failed to fetch record by energy resource" });
+        }
     }
-};
 
-export const deleteRecord = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    try {
-        await historicalDataService.deleteRecordById(id);
-        res.status(200).send({ message: `Record ${id} deleted.` });
-    } catch (error) {
-        res.status(500).send({ error: "Failed to delete record" });
+    async getRecordsByDateRange(req: Request, res: Response): Promise<void> {
+        const { start, end } = req.query;
+        try {
+            const records = await this.service.getRecordsByDateRange(start as string, end as string);
+            res.status(200).send(records);
+        } catch (error) {
+            res.status(500).send({ error: "Failed to fetch records by date range" });
+        }
     }
-};
 
-export const updateConsumption = async (req: Request, res: Response) => {
-    const { id, newConsumption } = req.body;
-    try {
-        await historicalDataService.updateConsumptionById(id, newConsumption);
-        res.status(200).send({ message: `Consumption for record ${id} updated.` });
-    } catch (error) {
-        res.status(500).send({ error: "Failed to update consumption" });
+    async deleteRecord(req: Request, res: Response): Promise<void> {
+        const { id } = req.params;
+        try {
+            await this.service.deleteRecordById(id);
+            res.status(200).send({ message: `Record ${id} deleted.` });
+        } catch (error) {
+            res.status(500).send({ error: "Failed to delete record" });
+        }
     }
-};
 
-export const getAverageConsumption = async (req: Request, res: Response) => {
-    const { energyResourceId } = req.params;
-    try {
-        const average = await historicalDataService.getAverageConsumption(energyResourceId);
-        res.status(200).send({ energyResourceId, averageConsumption: average });
-    } catch (error) {
-        res.status(500).send({ error: "Failed to calculate average consumption" });
+    async updateConsumption(req: Request, res: Response): Promise<void> {
+        const { id, newConsumption } = req.body;
+        try {
+            await this.service.updateConsumptionById(id, newConsumption);
+            res.status(200).send({ message: `Consumption for record ${id} updated.` });
+        } catch (error) {
+            res.status(500).send({ error: "Failed to update consumption" });
+        }
     }
-};
+
+    async getAverageConsumption(req: Request, res: Response): Promise<void> {
+        const { energyResourceId } = req.params;
+        try {
+            const average = await this.service.getAverageConsumption(energyResourceId);
+            res.status(200).send({ energyResourceId, averageConsumption: average });
+        } catch (error) {
+            res.status(500).send({ error: "Failed to calculate average consumption" });
+        }
+    }
+}

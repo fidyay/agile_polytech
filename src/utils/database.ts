@@ -15,4 +15,4 @@ async function initDB() {
   db = await JSONFilePreset<Data>(file, { energyResources: [], historicalData: [] });
 }
 
-export { db, initDB };
+export { db, initDB, Data };

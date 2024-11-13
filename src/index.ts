@@ -1,15 +1,8 @@
 import express from "express";
 import { getBalance, adjustResource } from "./controllers/balanceController.js";
-import {
-  getHistoricalData,
-  addHistoricalData,
-  getRecordByEnergyResource,
-  getRecordsByDateRange,
-  deleteRecord,
-  updateConsumption,
-  getAverageConsumption,
-} from "./controllers/historicalDataController.js";
-import { initDB } from "./utils/database.js";
+import { db, initDB } from "./utils/database.js";
+import { HistoricalDataController } from "./controllers/historicalDataController.js";
+import { HistoricalDataService } from "./services/historicalDataService.js";
 
 const app = express();
 const DEFAULT_SERVER_PORT = 3000;
@@ -20,26 +13,28 @@ app.use(express.json());
 // Ініціалізація бази даних
 initDB();
 
+const historicalDataController = new HistoricalDataController(new HistoricalDataService(db));
+
 // Роут для отримання історичних даних
-app.get("/historical-data", getHistoricalData);
+app.get("/historical-data", historicalDataController.getAllHistoricalData);
 
 // Роут для додавання історичного нового запису
-app.post("/historical-data", addHistoricalData);
+app.post("/historical-data", historicalDataController.addHistoricalData);
 
 // Роут для отримання історичних записів за енергією
-app.get("/historical-data/resource/:energyResourceId", getRecordByEnergyResource);
+app.get("/historical-data/resource/:energyResourceId", historicalDataController.getRecordByEnergyResource);
 
 // Роут для отримання історичних записів за датою
-app.get("/historical-data/range", getRecordsByDateRange);
+app.get("/historical-data/range", historicalDataController.getRecordsByDateRange);
 
 // Роут для видалення історичного запису
-app.delete("/historical-data/:id", deleteRecord);
+app.delete("/historical-data/:id", historicalDataController.deleteRecord);
 
 // Роут для оновлення історичного запису
-app.put("/historical-data/consumption", updateConsumption);
+app.put("/historical-data/consumption", historicalDataController.updateConsumption);
 
 // Роут для отримання середньої потреби
-app.get("/historical-data/average/:energyResourceId", getAverageConsumption);
+app.get("/historical-data/average/:energyResourceId", historicalDataController.getAverageConsumption);
 
 // Роут для автоматичного балансування ресурсів
 app.get("/balance", getBalance);
