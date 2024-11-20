@@ -4,6 +4,12 @@ import { db, initDB } from "./utils/database.js";
 import { HistoricalDataController } from "./controllers/historicalDataController.js";
 import { HistoricalDataService } from "./services/historicalDataService.js";
 import { IssueMonitorService } from "./services/issueMonitorService.js";
+import { VoltageMonitor } from "./controllers/VoltageMonitor.js"; // Путь к вашему классу
+
+const voltageMonitor = new VoltageMonitor(db);
+
+// Запуск мониторинга напряжения каждые 10 секунд (например)
+voltageMonitor.start(10000); // Интервал в миллисекундах
 
 export const app = express();
 const DEFAULT_SERVER_PORT = 3000;

@@ -16,7 +16,10 @@ export class DatabaseRepository {
     await db.write();
   }
 
-  static async updateResourceCapacity(id: string, capacity: number): Promise<void> {
+  static async updateResourceCapacity(
+    id: string,
+    capacity: number
+  ): Promise<void> {
     const resource = this.findResourceById(id);
     if (resource) {
       resource.capacity = capacity;
