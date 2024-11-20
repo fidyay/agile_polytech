@@ -11,7 +11,7 @@ const voltageMonitor = new VoltageMonitor(db);
 // Запуск мониторинга напряжения каждые 10 секунд (например)
 voltageMonitor.start(10000); // Интервал в миллисекундах
 
-const app = express();
+export const app = express();
 const DEFAULT_SERVER_PORT = 3000;
 const PORT = process.env.PORT || DEFAULT_SERVER_PORT;
 
@@ -25,6 +25,10 @@ initDB().then(() => {
 const historicalDataController = new HistoricalDataController(
   new HistoricalDataService(db)
 );
+
+app.get("/hello", (req, res) => {
+  res.send("Hello, world!");
+});
 
 // Роут для отримання історичних даних
 app.get("/historical-data", historicalDataController.getAllHistoricalData);
