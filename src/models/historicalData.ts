@@ -1,6 +1,9 @@
 export interface HistoricalData {
-    id: string;
-    timestamp: string; // ISO Date string
-    energyResourceId: string;
-    consumption: number;
+  id: string;
+  timestamp: string;
+  energyResourceId: string;
+  consumption: number;
+  voltage: number;
+  current: number;
+  frequency: number;
 }
