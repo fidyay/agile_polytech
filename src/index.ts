@@ -1,47 +1,39 @@
 import express from "express";
-import { getBalance, adjustResource } from "./controllers/balanceController.js";
-import { db, initDB } from "./utils/database.js";
-import { HistoricalDataController } from "./controllers/historicalDataController.js";
-import { HistoricalDataService } from "./services/historicalDataService.js";
+import { WebSocketServer } from "ws";
+import { Database } from "./models/Database.js";
+import { ApiController } from "./controllers/index.js";
+import { SystemMonitor } from "./services/SystemMonitor.js";
 
-const app = express();
-const DEFAULT_SERVER_PORT = 3000;
-const PORT = process.env.PORT || DEFAULT_SERVER_PORT;
+async function main() {
+  const app = express();
+  const port = 3000;
+  const databasePath = "./db.json";
 
-app.use(express.json());
+  const db = new Database(databasePath);
+  await db.init();
 
-// Ініціалізація бази даних
-initDB();
+  const apiController = new ApiController(db);
+  const monitor = new SystemMonitor(db);
+  monitor.start(5000);
 
-const historicalDataController = new HistoricalDataController(new HistoricalDataService(db));
+  const server = app.listen(port, () => {
+    console.log(`HTTP сервер запущен на http://localhost:${port}`);
+  });
 
-// Роут для отримання історичних даних
-app.get("/historical-data", historicalDataController.getAllHistoricalData);
+  const wss = new WebSocketServer({ server });
+  wss.on("connection", (ws) => {
+    console.log("Новое подключение WebSocket");
 
-// Роут для додавання історичного нового запису
-app.post("/historical-data", historicalDataController.addHistoricalData);
+    ws.on("close", () => {
+      console.log("Соединение закрыто");
+    });
+  });
 
-// Роут для отримання історичних записів за енергією
-app.get("/historical-data/resource/:energyResourceId", historicalDataController.getRecordByEnergyResource);
+  app.use(express.json());
 
-// Роут для отримання історичних записів за датою
-app.get("/historical-data/range", historicalDataController.getRecordsByDateRange);
+  app.post("/data", apiController.addMeasurement.bind(apiController));
+  app.get("/data", apiController.getAllMeasurements.bind(apiController));
+  app.get("/loads", apiController.getAllLoads.bind(apiController));
+}
 
-// Роут для видалення історичного запису
-app.delete("/historical-data/:id", historicalDataController.deleteRecord);
-
-// Роут для оновлення історичного запису
-app.put("/historical-data/consumption", historicalDataController.updateConsumption);
-
-// Роут для отримання середньої потреби
-app.get("/historical-data/average/:energyResourceId", historicalDataController.getAverageConsumption);
-
-// Роут для автоматичного балансування ресурсів
-app.get("/balance", getBalance);
-
-// Роут для ручного коригування ресурсу
-app.post("/adjust", adjustResource);
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+main().catch((err) => console.error("Ошибка:", err));
